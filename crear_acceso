@@ -1,0 +1,7 @@
+$desktopPath = [Environment]::GetFolderPath("Desktop")
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$desktopPath\Ejecutar Bot.lnk")
+$Shortcut.WorkingDirectory = "tu_directorio"
+$Shortcut.WindowStyle = 1
+$Shortcut.IconLocation = "C:\Windows\System32\cmd.exe"
+$Shortcut.Save()

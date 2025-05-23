@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tkinter import filedialog, Tk
 import time
+import chardet
 
 def escribir_lento(elemento, texto, campo=""):
     print(f"[~] Escribiendo en '{campo}':")
@@ -16,14 +17,24 @@ def escribir_lento(elemento, texto, campo=""):
         time.sleep(0.05)
     print()
 
+def leer_csv_con_codificacion(path, skiprows=0):
+    try:
+        return pd.read_csv(path, skiprows=skiprows)
+    except UnicodeDecodeError:
+        with open(path, 'rb') as f:
+            result = chardet.detect(f.read(10000))
+            encoding_detected = result['encoding']
+            print(f"[i] Codificación detectada para '{path}': {encoding_detected}")
+            return pd.read_csv(path, skiprows=skiprows, encoding=encoding_detected)
+
 # --- Seleccionar archivos ---
 Tk().withdraw()
 archivo_vencidas = filedialog.askopenfilename(title="Selecciona el archivo de órdenes vencidas")
 archivo_proveedores = filedialog.askopenfilename(title="Selecciona el archivo de proveedores")
 
-# --- Leer archivos ---
-df_vencidas = pd.read_csv(archivo_vencidas, skiprows=4)
-df_proveedores = pd.read_csv(archivo_proveedores)
+# --- Leer archivos con manejo de codificación ---
+df_vencidas = leer_csv_con_codificacion(archivo_vencidas, skiprows=4)
+df_proveedores = leer_csv_con_codificacion(archivo_proveedores)
 
 df_vencidas = df_vencidas[['num_orden_com', 'nombre_proveedor', 'desc_articulo']]
 df_proveedores = df_proveedores[['Proveedor', 'Email']]
@@ -99,7 +110,7 @@ for item in lista_correos:
         time.sleep(1)
 
         cc = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[role='textbox'][aria-label='CC']")))
-        escribir_lento(cc, "karina.barranco@ibero.mx", "CC")
+        escribir_lento(cc, "veronica.ylescas@ibero.mx", "CC")
         time.sleep(1)
 
         asunto = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[placeholder='Agregar un asunto']")))
